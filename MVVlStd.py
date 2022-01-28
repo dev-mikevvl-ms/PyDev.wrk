@@ -29,21 +29,23 @@
 
 # Mod:MVVlStd.py
 # Usa:
-# from MVVlStd import glSep_s, inp_FltAVali_feif
+# from MVVlStd import glSep_s, inp_FltAVali_fefi
 # import MVVlStd
-# # MVVlStd.inp_FltAVali_feif('?')
-# # inp_FltAVali_feif('?')
+# # MVVlStd.inp_FltAVali_fefi('?')
+# # inp_FltAVali_fefi('?')
 
 glScrWid_s = 70
 glSep_s = '_' *glScrWid_s
 
-def inp_FltAVali_feif(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
+def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
     laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laVerbose_i=None) -> tuple:
   if laInPValues_co < 1: raise ValueError(f'laInPValues_co must be > 0, now:{laInPValues_co}')
   loTypeAValiFlsCo_l, loRes_l, loMaxTry_co = [0, 0], [], int(max(laInPValues_co, laMaxInPTry_co))
   if laValiInPMsg_s and laVali_cll:
-    lo_s = f' - your value will be validated as({laValiInPMsg_s}) -'
+    lo_s = f' - your value will be validated as({laValiInPMsg_s}'
+    if lo_s[-1] == '\n': lo_s = lo_s[:-1] + ')\n -'
+    else: lo_s += ') -'
   else: lo_s = ''
   lo_s = f"Please, Input{laWhatInPMsg_s}{lo_s} and press Enter"
   if laAcceptEmptyInPAsDf_b and laDfV_s is not None:
@@ -89,8 +91,8 @@ def inp_FltAVali_feif(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     else: lo_s = ''
     print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.')
   return tuple(loRes_l)
-# print(inp_FltAVali_feif(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
-#  inp_FltAVali_feif(laValiWhatInPMsg_s=tCndInPMsg_s,
+# print(inp_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
+#  inp_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,
 #   laVali_cll=lambda x: x in tValiV_t)
 #   )
 # t_s = '' if tOk_co == 1 else 's'
@@ -98,7 +100,7 @@ def inp_FltAVali_feif(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 
 # tTime_co, tPtt_i, tOk_co, tFls_co = 10, 5, 0, 0
 
-# tResLLen_co = int(inp_FltAVali_feif(laVali_cll=lambda _i: 0 < _i < 10,
+# tResLLen_co = int(inp_FltAVali_fefi(laVali_cll=lambda _i: 0 < _i < 10,
 #     laWhatInPMsg_s=' Количество элементов будущего списка',
 #     laValiInPMsg_s=' a Integer 0 < _i < 10')[0],
 #     )
@@ -106,11 +108,11 @@ def inp_FltAVali_feif(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 # tValiV_t = tuple(range(0, 10))
 # tValiV_t = ('Y', 'N')
 # tCndInPMsg_s = f' (по очереди по одной вводите любые цифры) a Integer OneOf{tValiV_t}'
-# tRes_l = list(inp_FltAVali_feif(f' по очереди по одной любые цифры {tResLLen_co} раза',
+# tRes_l = list(inp_FltAVali_fefi(f' по очереди по одной любые цифры {tResLLen_co} раза',
 #     laInPValues_co=tResLLen_co, laValiInPMsg_s=f'a Integer OneOf{tValiV_t}',
 #     laVali_cll=lambda x: x in tValiV_t))
 # tValiV_t = ('Y', 'N')
-# tRes_l = list(inp_FltAVali_feif(f' Ts 2 times',
+# tRes_l = list(inp_FltAVali_fefi(f' Ts 2 times',
 #     laInPValues_co=2, laInPTypeFlt_cll=None, laDfV_s='Y',
 #     laAcceptEmptyInPAsDf_b=True, laValiInPMsg_s=f'a character OneOf{tValiV_t}',
 #     laVali_cll=lambda _s: _s.upper() in tValiV_t))
