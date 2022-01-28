@@ -1,6 +1,6 @@
 # Mod:MVVlStd.py
 # Distributed under the BSD license, version:BSD-3-Clause.
-# Copyright © 2022 Mike Vl. Vlasov <mikevvl@gmail.com>.
+# Copyright © 2022 Mike Vl. Vlasov <dev.mikevvl@outlook.com>.
 # All rights reserved.
 
 # Redistribution and use in source and binary forms, with or without
