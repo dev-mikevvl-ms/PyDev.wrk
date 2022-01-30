@@ -33,21 +33,23 @@
 # import MVVlStd
 # # MVVlStd.inp_FltAVali_fefi('?')
 # # inp_FltAVali_fefi('?')
+import sys
 
 glScrWid_s = 70
 glSep_s = '_' *glScrWid_s
 
 def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     laVali_cll=None, laInPTypeFlt_cll=int, laMaxInPTry_co=11,
-    laAcceptEmptyInPAsDf_b=False, laDfV_s=None, laVerbose_i=None) -> tuple:
+    laAcceptEmptyInPAsDf_b=False, laDfV_s=None,
+    laVerbose_i=None, file=sys.stdout) -> tuple:
   if laInPValues_co < 1: raise ValueError(f'laInPValues_co must be > 0, now:{laInPValues_co}')
   loTypeAValiFlsCo_l, loRes_l, loMaxTry_co = [0, 0], [], int(max(laInPValues_co, laMaxInPTry_co))
   if laValiInPMsg_s and laVali_cll:
     lo_s = f' - your value will be validated as({laValiInPMsg_s}'
-    if lo_s[-1] == '\n': lo_s = lo_s[:-1] + ')\n -'
+    if lo_s[-1] == '\n': lo_s = lo_s[:-1] + ') -\n'
     else: lo_s += ') -'
   else: lo_s = ''
-  lo_s = f"Please, Input{laWhatInPMsg_s}{lo_s} and press Enter"
+  lo_s = f" Please, Input{laWhatInPMsg_s}{lo_s} and press Enter"
   if laAcceptEmptyInPAsDf_b and laDfV_s is not None:
     lo_s += f"(on default '{laDfV_s}')"
   loInPMsg_s = f"{lo_s}: "
@@ -63,33 +65,33 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
     except ValueError as leExc_o:
       loTypeAValiFlsCo_l[0] +=1; liChe_i = None
       print(f"\tERR: You input:'{li_s}' NOT pass check type w/func({laInPTypeFlt_cll}",
-          f'- Exception:{type(leExc_o).__name__}({leExc_o}) raised.')
+          f'- Exception:{type(leExc_o).__name__}({leExc_o}) raised.', file=file)
     else:
       if laVali_cll is not None:
         if laVali_cll(liChe_i):
           loRes_l.append(liChe_i)
-          print(f"\tMSG: You input:'{liChe_i}' valid.")
+          # print(f"\tMSG: You input:'{liChe_i}' valid.", file=file)
         else:
           loTypeAValiFlsCo_l[1] +=1
           lo_s = f' because of NOT {laValiInPMsg_s}' if laValiInPMsg_s else ''
-          print(f"\tERR: You input:'{liChe_i}' INVALID{lo_s}.")
+          print(f"\tERR: You input:'{liChe_i}' INVALID{lo_s}.", file=file)
       else:
         loRes_l.append(liChe_i)
-        print(f"\tMSG: You input:'{liChe_i}'.")
+        # print(f"\tMSG: You input:'{liChe_i}'.", file=file)
         # if liChe_i == tPtt_i: tOk_co +=1
     # print(f'DBG: {loRes_l=}')
     if len(loRes_l) == laInPValues_co: break  
     if laMaxInPTry_co:
       if l_co == int(loMaxTry_co -1):
         if loRes_l:
-          print(f"\tWRN: Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co}, return {tuple(loRes_l)} as User input.")
+          print(f"\tWRN: Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co}, return {tuple(loRes_l)} as User input.", file=file)
         else:
           raise ValueError(f'Rich max(laInPValues_co, laMaxInPTry_co):{loMaxTry_co} but loRes_l is Empty - nothing return as User input.')
       else:
         lo_s = '' if l_co == (loMaxTry_co -2) else 's'
         lo_s = f' and {loMaxTry_co - l_co -1} attempt{lo_s} left'
     else: lo_s = ''
-    print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.')
+    print(f'MSG: It remains to input {laInPValues_co - len(loRes_l)} more value{lo_s}.', file=file)
   return tuple(loRes_l)
 # print(inp_FltAVali_fefi(laInPValues_co=2, laInPTypeFlt_cll=float, laMaxInPTry_co=1),
 #  inp_FltAVali_fefi(laValiWhatInPMsg_s=tCndInPMsg_s,
