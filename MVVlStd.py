@@ -33,11 +33,11 @@
 # import MVVlStd
 # # MVVlStd.inp_FltAVali_fefi('?')
 # # inp_FltAVali_fefi('?')
-import copy, sys
+import copy, sys, time
 from dataclasses import dataclass, field
 from collections.abc import Callable
 
-glScrWid_s = 70
+glScrWid_s = 80
 glSep_s = '_' *glScrWid_s
 
 glStdMsg4InP_l = [' Please, Input', ' and press Enter',
@@ -141,63 +141,76 @@ def inp_FltAVali_fefi(laWhatInPMsg_s, laInPValues_co=1, laValiInPMsg_s='',
 @dataclass
 class Menu_c():
 
-  MenuItm_d: dict = field(default_factory=dict)
-  InnStt_d: dict = None
-  PrnInnStt_fmp: Callable = None # [self, dict, file]; ??Df: IF InnStt_d is !None -> print(InnStt_d)
-  IterSortKey_f: Callable = None # [key] ??(Prop4Set): AsIn2MenuItm_d OR (lambda _el: str(_el))|int
-  HeaFmt_s: str = None
-  FooFmt_s: str = None
-  ItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
-  
+  fMenuItm_d: dict = field(default_factory=dict)
+  fInnStt_d: dict = None
+  fPrnInnStt_cll: Callable = None # [self, dict, file]; ??Df: IF fInnStt_d is !None -> print(fInnStt_d)
+  fIterSortKey_cll: Callable = None # [key] ??(Prop4Set): AsIn2fMenuItm_d OR (lambda _el: str(_el))|int
+  fHeaFmt_s: str = None
+  fFooFmt_s: str = None
+  fItmFmt_s: str = '{_k!s:>2}. {_v[0]}'
+  fAddHst_b: bool = True
+  fFile_o: object = sys.stdout
+
   def __post_init__(self):
-    self.MenuItm_d = dict(self.MenuItm_d)
-    if self.InnStt_d is not None:
-      self.InnStt_d = copy.deepcopy(dict(self.InnStt_d))
-      if self.PrnInnStt_fmp is None:
-        self.PrnInnStt_fmp = lambda sf_o, laInnStt_d, file=sys.stdout: print(laInnStt_d, file=file)
-    if self.HeaFmt_s is not None: self.HeaFmt_s = str(self.HeaFmt_s)
-    else: self.HeaFmt_s = glSep_s[:len(glSep_s)//3 *2]
-    if self.FooFmt_s is not None: self.FooFmt_s = str(self.FooFmt_s)
-    else: self.FooFmt_s = glSep_s[:len(glSep_s)//3 *2]
+    self.fMenuItm_d = dict(self.fMenuItm_d)
+    if self.fInnStt_d is not None:
+      self.fInnStt_d = copy.deepcopy(dict(self.fInnStt_d))
+      if self.fPrnInnStt_cll is None:
+        self.fPrnInnStt_cll = lambda sf_o, lafInnStt_d, file=self.fFile_o: print(lafInnStt_d, file=file)
+    if self.fHeaFmt_s is not None: self.fHeaFmt_s = str(self.fHeaFmt_s)
+    else: self.fHeaFmt_s = glSep_s
+    if self.fFooFmt_s is not None: self.fFooFmt_s = str(self.fFooFmt_s)
+    else: self.fFooFmt_s = glSep_s[:len(glSep_s)//3 *2]
     
-    self.IsRun_b = bool(self.MenuItm_d)
+    self.fRunLoop_b = bool(self.fMenuItm_d)
+    if self.fAddHst_b:
+      if self.fInnStt_d is None:
+        self.fInnStt_d = {'kActHst_l':[]}
+      if 'kActHst_l' not in self.fInnStt_d:
+        self.fInnStt_d['kActHst_l'] = []
+      self.fActHst_l = self.fInnStt_d['kActHst_l']
+      self.fActHst_l.append((time.time_ns(), 'Inn', '__post_init__', True))
+    else:
+      self.fActHst_l = None
 
   def __iter__(self): # 2Do: MaB Onl WhiUse(prn_fmp)
-    if self.IterSortKey_f is None:
-      return (_k for _k in self.MenuItm_d.keys())
-    return (_k for _k in sorted(self.MenuItm_d.keys(), key=self.IterSortKey_f))
+    if self.fIterSortKey_cll is None:
+      return (_k for _k in self.fMenuItm_d.keys())
+    return (_k for _k in sorted(self.fMenuItm_d.keys(), key=self.fIterSortKey_cll))
 
   def __getitem__(self, key): # BOf:KISS
-    return self.MenuItm_d[key]
+    return self.fMenuItm_d[key]
 
   def __len__(self): # BOf:KISS
-    return len(self.MenuItm_d)
+    return len(self.fMenuItm_d)
 
   def __contains__(self, key): # BOf:KISS
-    return key in self.MenuItm_d
+    return key in self.fMenuItm_d
 
-  # 2Do: MaB: oup_fmp(self, file=sys.stdout)
+  # 2Do: MaB: oup_fmp(self, file=fFile_o)
   # 2Do: MaB Onl(9+KeyExit OR Fit2Scr+KeyExit) w/Set(sf.WhiVieItmKey_l)
-  def prn_fmp(self, file=sys.stdout):
-    if bool(self.MenuItm_d):
-      if self.HeaFmt_s != '': print(self.HeaFmt_s, file=file)
-      print(*(self.ItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
+  def prn_fmp(self, file=fFile_o):
+    if bool(self.fMenuItm_d):
+      if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
+      print(*(self.fItmFmt_s.format(_k=_k, _v=self[_k]) for _k in self),
           sep='\n', file=file)
       self.prn_Info_fmp(file=file)
-      if self.FooFmt_s != '': print(self.FooFmt_s, file=file)
+      if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
   # def __str__(self):; __format__; tVieHst_fmp
-  def prn_Info_fmp(self, file=sys.stdout):
-    if self.PrnInnStt_fmp and callable(self.PrnInnStt_fmp):
-      self.PrnInnStt_fmp(self, laInnStt_d=self.InnStt_d, file=file)
+  def prn_Info_fmp(self, file=fFile_o):
+    if self.fPrnInnStt_cll and callable(self.fPrnInnStt_cll):
+      self.fPrnInnStt_cll(self, laInnStt_d=self.fInnStt_d, file=file)
 
-  # def add_Itm?_ffm(self):
-  # def del_Itm?_ffpm(self):
+  # def add_Itms?_ffm(self):
+  # def del_Itms?_ffpm(self):
   # def get_Keys?_ffpm(self):
 
   # def run_ffpm(self):
-  def __call__(self, file=sys.stdout): # MainLoop
-    while self.IsRun_b:
+  def __call__(self, file=fFile_o): # MainLoop
+    if self.fActHst_l is not None:
+      self.fActHst_l.append((time.time_ns(), 'Inn', 'Beg:MainLoop', True))
+    while self.fRunLoop_b:
       self.prn_fmp(file=file)
       li_s = inp_FltAVali_fefi(f' пункт меню', laInPTypeFlt_cll=None,
           file=file)[0].strip()
@@ -211,14 +224,21 @@ class Menu_c():
       if li_k is not None:
         lo_cll = self[li_k][1]
         if lo_cll is None: # 2Do:AddHst
-          print(f'DVL: None 4 calling Fu() пункт меню:"{li_k}"')
+          print(f'DVL: None 4 calling Fu() пункт меню({li_k})', file=file)
           continue
-        else: loRes_a = lo_cll(self, file=file) # 2Do:AddHst
+        else:
+          loRes_a = lo_cll(self, file=file) # 2Do:AddHst
+          if self.fActHst_l is not None:
+            self.fActHst_l.append((time.time_ns(), 'InP',
+                f'({li_s})' + self[li_k][0], loRes_a))
       else:
-          print(f'Неверный пункт меню:"{li_s}"') # 2Do:AddHst
+          print(f'Неверный пункт меню({li_s})', file=file) # 2Do:AddHst
     else: # 2Do:AddHst
-      if self.HeaFmt_s != '': print(self.HeaFmt_s, file=file)
-      print('До свидания!')
-      if self.FooFmt_s != '': print(self.FooFmt_s, file=file)
+      if self.fHeaFmt_s != '': print(self.fHeaFmt_s, file=file)
+      print('До свидания!', file=file)
+      if self.fActHst_l is not None:
+        self.fActHst_l.append((time.time_ns(), 'Inn', 'End:MainLoop', True))
+      if self.fFooFmt_s != '': print(self.fFooFmt_s, file=file)
 
-    return self.InnStt_d # 2Do:RetHst
+    return self.fInnStt_d # 2Do:RetHst
+
